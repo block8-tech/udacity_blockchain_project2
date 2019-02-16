@@ -40,7 +40,7 @@ class Blockchain {
             return await this.db
                 .addLevelDBData(newBlock.height, JSON.stringify(newBlock))
                 .then(persistedBlock => {
-                    console.log(`New Block Persisted to the Blockchain = ${persistedBlock}`);
+                    // console.log(`New Block Persisted to the Blockchain = ${persistedBlock}`);
                     return persistedBlock;
                 })
                 .catch(console.log);
@@ -70,7 +70,7 @@ class Blockchain {
     /================================================================*/
     async addBlock(newBlock) {
         // Add your code here
-        console.log('\nAttempting to add new Block to the blockchain...\n');
+        // console.log('\nAttempting to add new Block to the blockchain...\n');
 
         //1 Set newBlock.height
         //2 Set newBlock.time
@@ -80,6 +80,7 @@ class Blockchain {
         //6 Persist the newBlock to the levelDB blockchain
         //7 Return the async Function (this will be a Resolved Promise)
         //8 Deal with any Errors
+
 
         //1
         newBlock.height = await this.getBlockHeight();
@@ -103,18 +104,21 @@ class Blockchain {
         newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
         // console.log('newBlock.hash = ' + newBlock.hash);
 
+
         //6
         return await this.db
             .addLevelDBData(newBlock.height, JSON.stringify(newBlock))
             .then(persistedBlock => {
                 //7
-                console.log(`\nBlock persisted to the levelDB Blockchain: ${persistedBlock}\n`);
-                return persistedBlock;
+                // console.log(`\nBlock persisted to the levelDB Blockchain: ${persistedBlock}\n`);
+                return new Promise (resolve => resolve(persistedBlock)).catch(console.log);
             })
             .catch(err => {
                 //8
-                return err;
+                return new Promise((resolve, reject) => reject(err)).catch(console.log);
             });
+
+
     }
 
 
@@ -127,7 +131,14 @@ class Blockchain {
     /=================================================================*/
     async getBlock(height) {
         // Add your code here
-        return await this.db.getLevelDBData(height);
+        return await new Promise((resolve, reject) => {
+            this.db.getLevelDBData(height)
+                .then(block => {
+                    resolve(block);
+                })
+                .catch(reject);
+        });
+
     }
 
 
@@ -240,78 +251,78 @@ module.exports.Blockchain = Blockchain;
 
 
 
-let bchain = new Blockchain();
+// let bchain = new Blockchain();
 
-(function(){
-    return setTimeout(async function() {
-
-        // test calls to the levelBD here.
-
-        //  Function that persists 'n' Blocks to the chain. (WORKS)
-        /*=================================================================/
-        /   Call the function and pass it the number of Blocks you want    /
-        /   to persist to the levelDB blockchain.                          /
-        /   example:                                                       /
-        /   addBlocks(100)                                                 /
-        /   The above will persist 100 unique Blocks to levelDB 'dbchain'. /
-        /=================================================================*/
-        const addBlocks = (n) => {
-
-            const x = n;
-
-            return new Promise((resolve, reject) => {
-
-                function check() {
-                    if(count > x) {
-                        clearInterval(interval);
-                        resolve();
-                    }
-                }
-
-                let count = 0;
-
-                let interval = setInterval(() => {
-                    check();
-                    let rand = Math.floor(Math.random() * 10000000000) + 1;
-                    bchain.addBlock(new Block.Block(`New Block ... random number string => ${rand.toString()}`)).then().catch();
-                    count++;
-                    console.log('count = ' + count);
-                }, 10);
-
-                interval();
-
-            });
-        };
-
-        // Uncomment to add 10 unique blocks to the levelDB chain.
-        // await addBlocks(10);
-
-
-        // whatBlock is the block height you want to return and validate.
-        const whatBlock = 4;
-
-
-        /*=================================================================/
-        /        TEST THE CODE - prints results to console.log             /
-        /=================================================================*/
-        console.log('\n\n\n');
-        console.log('==========================================================================================');
-        console.log('==========================   Starting   ==================================================');
-        console.log('==========================================================================================');
-        await bchain.getBlockHeight().then(height => console.log(`\nChain height = ${height}\n`));
-        console.log('==========================================================================================');
-        await bchain.addBlock(new Block.Block("New block...")).then().catch();
-        console.log('==========================================================================================');
-        await bchain.getBlock(whatBlock).then(res => console.log(`\nBlock ${whatBlock.toString()} = ${res}\n`)).catch();
-        console.log('==========================================================================================');
-        await bchain.validateBlock(whatBlock).then(res => console.log(`\nBlock ${whatBlock.toString()} validated = ${res}\n`)).catch();
-        console.log('==========================================================================================');
-        await bchain.validateChain().then(res => console.log(`\nBlockchain validated = ${res}\n`)).catch(console.log);
-        console.log('=====================================   END   ============================================');
-        console.log('\n\n\n');
-
-    }, 1000);
-})();
+// (function(){
+//     return setTimeout(async function() {
+//
+//         // test calls to the levelBD here.
+//
+//         //  Function that persists 'n' Blocks to the chain. (WORKS)
+//         /*=================================================================/
+//         /   Call the function and pass it the number of Blocks you want    /
+//         /   to persist to the levelDB blockchain.                          /
+//         /   example:                                                       /
+//         /   addBlocks(100)                                                 /
+//         /   The above will persist 100 unique Blocks to levelDB 'dbchain'. /
+//         /=================================================================*/
+//         const addBlocks = (n) => {
+//
+//             const x = n;
+//
+//             return new Promise((resolve, reject) => {
+//
+//                 function check() {
+//                     if(count > x) {
+//                         clearInterval(interval);
+//                         resolve();
+//                     }
+//                 }
+//
+//                 let count = 0;
+//
+//                 let interval = setInterval(() => {
+//                     check();
+//                     let rand = Math.floor(Math.random() * 10000000000) + 1;
+//                     bchain.addBlock(new Block.Block(`New Block ... random number string => ${rand.toString()}`)).then().catch();
+//                     count++;
+//                     console.log('count = ' + count);
+//                 }, 10);
+//
+//                 interval();
+//
+//             });
+//         };
+//
+//         // Uncomment to add 10 unique blocks to the levelDB chain.
+//         // await addBlocks(10);
+//
+//
+//         // whatBlock is the block height you want to return and validate.
+//         const whatBlock = 1;
+//
+//
+//         /*=================================================================/
+//         /        TEST THE CODE - prints results to console.log             /
+//         /=================================================================*/
+//         console.log('\n\n\n');
+//         console.log('==========================================================================================');
+//         console.log('==========================   Starting   ==================================================');
+//         console.log('==========================================================================================');
+//         await bchain.getBlockHeight().then(height => console.log(`\nChain height = ${height}\n`));
+//         console.log('==========================================================================================');
+//         await bchain.addBlock(new Block.Block("New block...")).then().catch();
+//         console.log('==========================================================================================');
+//         await bchain.getBlock(whatBlock).then(res => console.log(`\nBlock ${whatBlock.toString()} = ${res}\n`)).catch();
+//         console.log('==========================================================================================');
+//         await bchain.validateBlock(whatBlock).then(res => console.log(`\nBlock ${whatBlock.toString()} validated = ${res}\n`)).catch();
+//         console.log('==========================================================================================');
+//         await bchain.validateChain().then(res => console.log(`\nBlockchain validated = ${res}\n`)).catch(console.log);
+//         console.log('=====================================   END   ============================================');
+//         console.log('\n\n\n');
+//
+//     }, 1000);
+// })();
 
 
 

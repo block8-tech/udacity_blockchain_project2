@@ -12,37 +12,34 @@ class LevelSandbox {
         this.db = level(chainDB);
     }
 
+
     // Get data from levelDB with key (Promise)
     getLevelDBData(key){
         let self = this;
         return new Promise(function(resolve, reject) {
             // Add your code here, remember in Promises you need to resolve() or reject()
-            return self.db.get(key)
-                .then(resolve)
-                .catch(reject);
+            return self.db.get(key).then(resolve).catch(reject);
         });
     }
 
     // Add data to levelDB with key and value (Promise)
+    /*
+    /   This method will deal with JSON.parse(block)
+     */
     async addLevelDBData(key, value) {
         let self = this;
 
-        return await new Promise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             // Add your code here, remember in Promises you need to resolve() or reject()
-            return self.db.put(key, value, function(err) {
-                if(err) reject(err);
-
-                //success!
-                self.db.get(key, function(err, value) {
-                    if(err) {
-                        console.log(err);
-                        reject(err);
-                    }
-
-                    //retrieved the doc!
-                    resolve(value);
+            self.db.put(key, value)
+                .then(result => {
+                    self.db.get(key)
+                        .then(block => {
+                            let blk = JSON.parse(block);
+                            resolve(blk.body);
+                        });
                 })
-        });
+                .catch(reject);
         });
     }
 
