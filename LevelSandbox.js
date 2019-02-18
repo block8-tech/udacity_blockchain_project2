@@ -36,7 +36,7 @@ class LevelSandbox {
                     self.db.get(key)
                         .then(block => {
                             let blk = JSON.parse(block);
-                            resolve(blk.body);
+                            resolve(blk);
                         });
                 })
                 .catch(reject);
