@@ -191,6 +191,48 @@ class Blockchain {
 
 
 
+
+    async checkPreviousHash(){
+
+        const chainHeight = await this.getBlockHeight();
+        const validatedList = [];
+        const invalidList = [];
+
+        for(let i = 0; i < chainHeight; i++){
+
+            if(i === 0){
+
+            }
+
+            if(i > 0){
+                const a = await this.getBlock(i).then(block => JSON.parse(block));
+                const b = await this.getBlock(i - 1).then(block => JSON.parse(block));
+
+
+                if(a.previousBlockHash === b.hash){
+                    validatedList.push(a.height);
+                } else {
+                    invalidList.push(a.height);
+                }
+            }
+        }
+
+
+        return new Promise((resolve, reject) => {
+
+            if(invalidList.length > 0){
+                reject(`Block ${invalidList[0]} did not pass the validateChain method.`)
+            } else {
+                resolve(true)
+            }
+        });
+    }
+
+
+
+
+
+
     // Validate the entire Blockchain using validateBlock loop. (WORKS)
     /*=================================================================/
     /   Get's chain height and uses height to iterate with for loop    /
@@ -216,8 +258,8 @@ class Blockchain {
                     return Promise.all(promiseArray);
                 })
                 .then(resultsOfPromiseAll => {
-                    // console.log(`validateChain = ${resultsOfPromiseAll}`);
-                    resolve(true);
+                    // if we are in this code block then all individual blocks have had their hash's recalculated and validated.
+                    return this.checkPreviousHash().then(resolve).catch(reject);
                 })
                 .catch(e => {
                     console.log(`An error has occurred in validateChain = ${e}`);
@@ -247,83 +289,9 @@ class Blockchain {
    
 }
 
+
+
 module.exports.Blockchain = Blockchain;
-
-
-
-// let bchain = new Blockchain();
-
-// (function(){
-//     return setTimeout(async function() {
-//
-//         // test calls to the levelBD here.
-//
-//         //  Function that persists 'n' Blocks to the chain. (WORKS)
-//         /*=================================================================/
-//         /   Call the function and pass it the number of Blocks you want    /
-//         /   to persist to the levelDB blockchain.                          /
-//         /   example:                                                       /
-//         /   addBlocks(100)                                                 /
-//         /   The above will persist 100 unique Blocks to levelDB 'dbchain'. /
-//         /=================================================================*/
-//         const addBlocks = (n) => {
-//
-//             const x = n;
-//
-//             return new Promise((resolve, reject) => {
-//
-//                 function check() {
-//                     if(count > x) {
-//                         clearInterval(interval);
-//                         resolve();
-//                     }
-//                 }
-//
-//                 let count = 0;
-//
-//                 let interval = setInterval(() => {
-//                     check();
-//                     let rand = Math.floor(Math.random() * 10000000000) + 1;
-//                     bchain.addBlock(new Block.Block(`New Block ... random number string => ${rand.toString()}`)).then().catch();
-//                     count++;
-//                     console.log('count = ' + count);
-//                 }, 10);
-//
-//                 interval();
-//
-//             });
-//         };
-//
-//         // Uncomment to add 10 unique blocks to the levelDB chain.
-//         // await addBlocks(10);
-//
-//
-//         // whatBlock is the block height you want to return and validate.
-//         const whatBlock = 1;
-//
-//
-//         /*=================================================================/
-//         /        TEST THE CODE - prints results to console.log             /
-//         /=================================================================*/
-//         console.log('\n\n\n');
-//         console.log('==========================================================================================');
-//         console.log('==========================   Starting   ==================================================');
-//         console.log('==========================================================================================');
-//         await bchain.getBlockHeight().then(height => console.log(`\nChain height = ${height}\n`));
-//         console.log('==========================================================================================');
-//         await bchain.addBlock(new Block.Block("New block...")).then().catch();
-//         console.log('==========================================================================================');
-//         await bchain.getBlock(whatBlock).then(res => console.log(`\nBlock ${whatBlock.toString()} = ${res}\n`)).catch();
-//         console.log('==========================================================================================');
-//         await bchain.validateBlock(whatBlock).then(res => console.log(`\nBlock ${whatBlock.toString()} validated = ${res}\n`)).catch();
-//         console.log('==========================================================================================');
-//         await bchain.validateChain().then(res => console.log(`\nBlockchain validated = ${res}\n`)).catch(console.log);
-//         console.log('=====================================   END   ============================================');
-//         console.log('\n\n\n');
-//
-//     }, 1000);
-// })();
-
 
 
 
