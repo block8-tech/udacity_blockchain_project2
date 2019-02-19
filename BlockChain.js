@@ -286,8 +286,32 @@ class Blockchain {
                 });
         });
     }
-   
+
+    async getBlockChain(){
+        const chainHeight = await this.getBlockHeight();
+
+        const fullChain = [];
+
+        for(let i = 0; i < chainHeight; i++){
+            await this.getBlock(i)
+                .then(block => {
+                    fullChain.push(block)
+                })
+                .catch(console.log);
+        }
+
+        return new Promise((resolve, reject) => {
+            if(chainHeight === fullChain.length){
+                resolve(fullChain);
+            } else {
+                reject(`The full blockchain could not be retuned. Please review the code in _getBlockChain()_ method inside of Blockchain class.`);
+            }
+        });
+    }
+
 }
+
+
 
 
 

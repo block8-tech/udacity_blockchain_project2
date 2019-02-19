@@ -117,3 +117,15 @@ let myBlockChain = new BlockChain.Blockchain();
 // .catch((error) => {
 // 	console.log(error);
 // })
+
+
+
+/***********************************************
+ ***************** Get Chain  ******************
+ ***********************************************/
+// myBlockChain.getBlockChain().then((data) => {
+//     console.log( data );
+// })
+//     .catch((error) => {
+//         console.log(error);
+//     })
